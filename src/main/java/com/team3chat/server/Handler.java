@@ -5,7 +5,10 @@ package com.team3chat.server;
  */
 
 import com.team3chat.messages.Command;
+import com.team3chat.exceptions.SavingHistoryException;
+import com.team3chat.messages.Command;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -32,12 +35,13 @@ public class Handler implements Runnable {
         ) {
             while (true) {
                 Object command = input.readObject();
-                logicApplier.applyCommand((Command)command);
-                out.writeUTF(logicApplier.getFormattedMessage());
+                logicApplier.receiveCommand(command);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SavingHistoryException e) {
             e.printStackTrace();
         }
         close();

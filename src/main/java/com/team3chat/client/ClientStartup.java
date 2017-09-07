@@ -63,6 +63,4 @@ public class ClientStartup {
         userInputListeningThread.start();
         return userInputListeningThread;
     }
-
-
 }
