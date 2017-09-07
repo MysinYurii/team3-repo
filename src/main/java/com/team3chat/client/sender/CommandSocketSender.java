@@ -11,32 +11,38 @@ import java.net.Socket;
 /**
  * Created by Java_9 on 07.09.2017.
  */
-public class CommandSocketSender implements CommandPrinter, CommandReader {
+public class CommandSocketSender implements CommandPrinter, CommandReader, Closeable {
     private Socket socket;
+    private BufferedReader inputStream;
+    private PrintWriter outputStream;
 
-    public CommandSocketSender(Socket socket) {
+    public CommandSocketSender(Socket socket) throws IOException {
         this.socket = socket;
+        this.outputStream = new PrintWriter(socket.getOutputStream(), true);
+        this.inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     @Override
     public void print(Command command) {
-        try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
-            output.writeObject(command);
-            output.flush();
-        } catch (IOException e) {
-            System.out.println("Error during message sending");
-        }
+        outputStream.println(command.getRepresentation() + System.lineSeparator() + System.lineSeparator());
+        outputStream.flush();
     }
 
     @Override
     public Command readCommand() {
         while (true) {
-            try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))) {
-                String newMessage = inputStream.readUTF();
+            try {
+                String newMessage = inputStream.readLine();
                 return new SendMessageCommand(newMessage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void close() throws IOException {
+        inputStream.close();
+        outputStream.close();
     }
 }

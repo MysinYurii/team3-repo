@@ -18,8 +18,7 @@ public class UserInputHandler {
     public void start() {
         Command insertedCommand = null;
         do {
-            Command command = commandReader.readCommand();
-            insertedCommand = command;
+            insertedCommand = commandReader.readCommand();
             commandPrinter.print(insertedCommand);
         } while (!(insertedCommand instanceof DisconnectCommand));
     }

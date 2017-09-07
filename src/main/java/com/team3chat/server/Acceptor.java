@@ -4,9 +4,7 @@ package com.team3chat.server;
  * Created by Java_12 on 07.09.2017.
  */
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 
@@ -23,17 +21,21 @@ public class Acceptor implements Runnable {
     @Override
     public void run() {
         try (
-                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         ) {
+            String command;
             while (true) {
-                Object command = input.readObject();
-                logicApplier.receiveCommand(command);
+                while ((command = input.readLine()) != null) {
+                    System.out.println(command);
+                    System.out.flush();
+                    logicApplier.receiveCommand(command);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
         }
+        System.out.println("end");
     }
+
 }
