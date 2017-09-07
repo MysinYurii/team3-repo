@@ -1,5 +1,6 @@
 package com.team3chat.server;
 
+import com.team3chat.exceptions.SavingHistoryException;
 import com.team3chat.messages.SendMessageCommand;
 import com.team3chat.messages.ShowHistoryCommand;
 
@@ -11,7 +12,7 @@ class BusinessLogic {
         this.historyDealer = historyDealer;
     }
 
-    public void receiveCommand(Object command) {
+    public void receiveCommand(Object command) throws SavingHistoryException {
         if (command instanceof SendMessageCommand) {
             applyCommand((SendMessageCommand) command);
         }
@@ -21,13 +22,13 @@ class BusinessLogic {
         return formattedMessage;
     }
 
-    private void applyCommand(SendMessageCommand command) {
+    private void applyCommand(SendMessageCommand command) throws SavingHistoryException {
         if (command != null) {
             formattedMessage = historyDealer.saveHistory(command.getMessage());
         }
     }
 
-    private void applyCommand(ShowHistoryCommand command) {
+    private void applyCommand(ShowHistoryCommand command) throws SavingHistoryException {
         if (command != null) {
             historyDealer.readHistory();
         }

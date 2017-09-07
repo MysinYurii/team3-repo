@@ -4,6 +4,8 @@ package com.team3chat.server;
  * Created by Java_12 on 07.09.2017.
  */
 
+import com.team3chat.exceptions.SavingHistoryException;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -34,6 +36,8 @@ public class Acceptor implements Runnable {
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        } catch (SavingHistoryException e) {
+            System.out.println("Saving History ");
         }
     }
 }
