@@ -8,8 +8,13 @@ import com.team3chat.messages.ConnectCommand;
  */
 public class CommandParser {
 
-    public Command parse(String userInput) {
-        return new ConnectCommand();
+    public Command parse(String userInput) throws ParsingException {
+//        if (userInput.startsWith("/snd")) {
+//
+//        } else if (userInput.startsWith("/hist")) {
+//
+//        }
+        return null;
     }
 
 }
