@@ -1,6 +1,7 @@
 package com.team3chat.server;
 
 import java.io.*;
+import java.util.Date;
 
 /**
  * Created by Java_12 on 07.09.2017.
@@ -14,7 +15,7 @@ public class HistoryDealer {
 
     public void saveHistory(String message) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(historyFile, true))) {
-            bw.write(message);
+            bw.write(String.format("%s %s", (new Date()).toString(), message));
             bw.newLine();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
