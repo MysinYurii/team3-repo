@@ -36,10 +36,8 @@ public class ClientMessageTest {
     @Test
     public void shouldGetMessageWithDateAndTimeWhenSendMessage() {
         //Given
+        //print("/snd message test");
         userInputHandler = new UserInputHandler(commandParser, commandSender);
-
-        //When
-        client.message("/snd message test");
 
         //Then
         verify(commandSender, times(1)).send(new SendMessageCommand("message test"));
@@ -48,8 +46,9 @@ public class ClientMessageTest {
     @Ignore
     @Test
     public void shouldGetHistoryWhenPrintHistoryCommand() {
-        //When
-        client.message("/hist");
+        //Given
+        //print("/hist");
+        userInputHandler = new UserInputHandler(commandParser, commandSender);
 
         //Then
         verify(commandSender, times(1)).send(new ShowHistoryCommand());
