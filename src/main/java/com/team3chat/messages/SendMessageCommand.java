@@ -13,5 +13,4 @@ public class SendMessageCommand implements Command {
     public String getMessage() {
         return message;
     }
-
 }
