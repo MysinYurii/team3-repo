@@ -13,24 +13,17 @@ class BusinessLogic {
     }
 
     public void receiveCommand(Object command) throws SavingHistoryException {
-        if (command instanceof SendMessageCommand) {
-            applyCommand((SendMessageCommand) command);
+        if (command != null) {
+            if (command instanceof SendMessageCommand) {
+                SendMessageCommand sendMessageCommand = (SendMessageCommand) command;
+                formattedMessage = historyDealer.saveHistory(sendMessageCommand.getMessage());
+            } else if (command instanceof ShowHistoryCommand) {
+                historyDealer.readHistory();
+            }
         }
     }
 
     public String getFormattedMessage() {
         return formattedMessage;
-    }
-
-    private void applyCommand(SendMessageCommand command) throws SavingHistoryException {
-        if (command != null) {
-            formattedMessage = historyDealer.saveHistory(command.getMessage());
-        }
-    }
-
-    private void applyCommand(ShowHistoryCommand command) throws SavingHistoryException {
-        if (command != null) {
-            historyDealer.readHistory();
-        }
     }
 }

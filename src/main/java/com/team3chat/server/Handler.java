@@ -5,20 +5,22 @@ package com.team3chat.server;
  */
 
 import com.team3chat.exceptions.SavingHistoryException;
+import com.team3chat.messages.Command;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 
-public class Acceptor implements Runnable {
+public class Handler implements Runnable {
 
     private Socket clientSocket;
     private BusinessLogic logicApplier;
+    private Server server;
 
-    public Acceptor(Socket clientSocket, BusinessLogic logicApplier) {
+    public Handler(Server server, Socket clientSocket, BusinessLogic logicApplier) {
+        this.server = server;
         this.clientSocket = clientSocket;
         this.logicApplier = logicApplier;
     }
@@ -27,17 +29,27 @@ public class Acceptor implements Runnable {
     public void run() {
         try (
                 ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
-                DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
         ) {
             while (true) {
                 Object command = input.readObject();
                 logicApplier.receiveCommand(command);
-                out.writeUTF(logicApplier.getFormattedMessage());
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SavingHistoryException e) {
-            System.out.println("Saving History ");
+            e.printStackTrace();
         }
+        close();
+    }
+
+    private void close() {
+        server.closeHandler(this);
+    }
+
+    public void send(Command c) {
+
     }
 }
