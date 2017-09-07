@@ -31,14 +31,17 @@ public class ClientStartup {
                 new DisconnectCommandMatcher()));
         consolePrinterReader = new ConsolePrinterReader(commandParser);
         try (Socket serverSocket = new Socket("127.0.0.1", 1234)) {
-            startUserListeningThread(serverSocket);
-            startSocketListeningThread(serverSocket, consolePrinterReader);
+            Thread userListeningThread = startUserListeningThread(serverSocket);
+            Thread socketListeningThread = startSocketListeningThread(serverSocket, consolePrinterReader);
+            userListeningThread.join();
+            socketListeningThread.join();
         } catch (UnknownHostException e) {
             System.out.println("Client is pointed to non-existant server");
         } catch (IOException e) {
             System.out.println("Exception during connection to server occured");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-
     }
 
     private static Thread startSocketListeningThread(Socket socket, CommandPrinter commandPrinter) {
@@ -53,7 +56,8 @@ public class ClientStartup {
 
     private static Thread startUserListeningThread(Socket socket) {
         Thread userInputListeningThread = new Thread(() -> {
-            UserInputHandler inputHandler = new UserInputHandler(consolePrinterReader, consolePrinterReader);
+            CommandSocketSender commandSocketSender = new CommandSocketSender(socket);
+            UserInputHandler inputHandler = new UserInputHandler(consolePrinterReader, commandSocketSender);
             inputHandler.start();
         });
         userInputListeningThread.start();

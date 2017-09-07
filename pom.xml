@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.acme.edu</groupId>
-    <artifactId>team3-test-project</artifactId>
+    <artifactId>team2-chat</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -51,10 +51,10 @@
                 <version>1.2.0</version>
                 <configuration>
                     <targetClasses>
-                        <param>com.acme.edu*</param>
+                        <param>com.team3chat.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>com.acme.edu*</param>
+                        <param>com.team3chat.*</param>
                     </targetTests>
                     <mutators>
                         <mutator>ALL</mutator>
