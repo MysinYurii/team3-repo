@@ -21,15 +21,16 @@ public class Acceptor implements Runnable {
     @Override
     public void run() {
         try (
-                BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+                DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
         ) {
-            String command;
+            System.out.println("new connection accepted");
             while (true) {
-                while ((command = input.readLine()) != null) {
-                    System.out.println(command);
-                    System.out.flush();
-                    logicApplier.receiveCommand(command);
+                String string;
+                try {
+                    string = input.readUTF();
+                    System.out.println(string);
+                } catch (IOException ignored) {
                 }
             }
         } catch (IOException e) {

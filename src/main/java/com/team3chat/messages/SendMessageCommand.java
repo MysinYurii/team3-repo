@@ -5,7 +5,6 @@ package com.team3chat.messages;
  */
 public class SendMessageCommand implements Command {
     private final String message;
-    private String login;
 
     public SendMessageCommand(String message) {
         this.message = message;
@@ -20,11 +19,4 @@ public class SendMessageCommand implements Command {
         return "hello";
     }
 
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
 }
