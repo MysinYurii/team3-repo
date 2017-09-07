@@ -10,13 +10,19 @@ class BusinessLogic {
         this.historyDealer = historyDealer;
     }
 
-    public void applyCommand(SendMessageCommand command) {
+    public void receiveCommand(Object command) {
+        if (command instanceof SendMessageCommand) {
+            applyCommand((SendMessageCommand) command);
+        }
+    }
+
+    private void applyCommand(SendMessageCommand command) {
         if (command != null) {
             historyDealer.saveHistory(command.getMessage());
         }
     }
 
-    public void applyCommand(ShowHistoryCommand command) {
+    private void applyCommand(ShowHistoryCommand command) {
         if (command != null) {
             historyDealer.readHistory();
         }

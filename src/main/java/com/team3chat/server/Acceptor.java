@@ -4,9 +4,6 @@ package com.team3chat.server;
  * Created by Java_12 on 07.09.2017.
  */
 
-import com.team3chat.messages.Command;
-import com.team3chat.messages.SendMessageCommand;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,9 +28,7 @@ public class Acceptor implements Runnable {
         ) {
             while (true) {
                 Object command = input.readObject();
-                if (command instanceof SendMessageCommand) {
-                    logicApplier.applyCommand((SendMessageCommand) command);
-                }
+                logicApplier.receiveCommand(command);
             }
         } catch (IOException e) {
             e.printStackTrace();
