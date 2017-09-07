@@ -1,6 +1,9 @@
 package com.team3chat.server;
 
+import com.team3chat.exceptions.SavingHistoryException;
+
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -13,29 +16,34 @@ public class HistoryDealer {
         this.historyFile = historyFile;
     }
 
-    public void saveHistory(String message) {
+    public synchronized String saveHistory(String message) throws SavingHistoryException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(historyFile, true))) {
-            bw.write(String.format("%s %s", (new Date()).toString(), message));
+            String formattedMessage = String.format("%s %s", (new Date()).toString(), message);
+            bw.write(formattedMessage);
             bw.newLine();
+            return formattedMessage;
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            throw new SavingHistoryException("File not found while writing history", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new SavingHistoryException("IOException while writing history", e);
         }
     }
 
-    public void readHistory() {
-        try (
-                RandomAccessFile far = new RandomAccessFile(historyFile, "rw");
-        ) {
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            new BufferedInputStream(
-                                    new FileInputStream(historyFile)), "UTF-8"))) {
-
+    public synchronized ArrayList<String> readHistory() throws SavingHistoryException {
+        ArrayList<String> history = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(
+                        new BufferedInputStream(
+                                new FileInputStream(historyFile)), "UTF-8"))) {
+            String in;
+            while ((in = reader.readLine()) != null) {
+                history.add(in);
             }
+        } catch (FileNotFoundException e) {
+            throw new SavingHistoryException("File not found while reading history", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new SavingHistoryException("IOException while reading history", e);
         }
+        return history;
     }
 }
