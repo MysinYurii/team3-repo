@@ -1,6 +1,7 @@
 package com.team3chat.client.parser;
 
 import com.team3chat.messages.SendMessageCommand;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by Java_9 on 07.09.2017.
@@ -9,7 +10,7 @@ public class SendMessageCommandMatcher implements CommandMatcher<SendMessageComm
     private static final String PREFIX = "/snd";
 
     @Override
-    public SendMessageCommand parseCommand(String commandPattern) {
+    public @Nullable SendMessageCommand parseCommand(String commandPattern) {
         if (!commandPattern.startsWith(PREFIX)) {
             return null;
         }
