@@ -12,14 +12,13 @@ import java.util.Set;
 public class Server {
 
     private Set<Handler> handlersSet;
-    int port;
-    Server(int port) throws IOException {
+    private final int port = 1234;
+    Server() throws IOException {
         handlersSet = new HashSet<>();
-        this.port = port;
     }
 
     public static void main(String[] args) throws IOException {
-        new Server(1234).start();
+        new Server().start();
     }
 
     private void start() throws IOException {
@@ -30,7 +29,9 @@ public class Server {
         while (true) {
             Socket clientSocket = serverSocket.accept();
             Handler handler = new Handler(this, clientSocket, logicApplier);
-            handlersSet.add(handler);
+            synchronized (handlersSet) {
+                handlersSet.add(handler);
+            }
             new Thread(handler).start();
         }
     }
