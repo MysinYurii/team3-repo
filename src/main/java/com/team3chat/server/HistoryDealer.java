@@ -13,27 +13,26 @@ public class HistoryDealer {
         this.historyFile = historyFile;
     }
 
-    public void saveHistory(String message) {
+    public String saveHistory(String message) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(historyFile, true))) {
-            bw.write(String.format("%s %s", (new Date()).toString(), message));
+            String formattedMessage = String.format("%s %s", (new Date()).toString(), message);
+            bw.write(formattedMessage);
             bw.newLine();
+            return formattedMessage;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void readHistory() {
-        try (
-                RandomAccessFile far = new RandomAccessFile(historyFile, "rw");
-        ) {
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            new BufferedInputStream(
-                                    new FileInputStream(historyFile)), "UTF-8"))) {
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(
+                        new BufferedInputStream(
+                                new FileInputStream(historyFile)), "UTF-8"))) {
 
-            }
         } catch (IOException e) {
             e.printStackTrace();
         }
