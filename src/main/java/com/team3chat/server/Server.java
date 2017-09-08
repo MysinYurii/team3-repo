@@ -1,5 +1,6 @@
 package com.team3chat.server;
 
+import com.team3chat.exceptions.MessageHandlingException;
 import com.team3chat.exceptions.SavingHistoryException;
 
 import java.io.*;
@@ -58,46 +59,56 @@ public class Server {
             try {
                 userName = in.readLine();
                 String clientString;
-
                 while (true) {
-                    clientString = in.readLine();
-                    if (clientString.equals("/exit")) {
-                        break;
-                    } else if (clientString.startsWith("/snd")) {
-                        clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
-                        synchronized (connections) {
-                            Iterator<Connection> iterator = connections.iterator();
-                            while (iterator.hasNext()) {
-                                iterator.next().out.println(clientString);
-                            }
-                        }
-                    } else if (clientString.equals("/hist")) {
-                        ArrayList<String> result = historyDealer.readHistory();
-                        for (String s : result) {
-                            out.println(s);
-                        }
-                    } else if (clientString.startsWith("/chid")) {
-                        String newName = clientString.substring(6);
-                        boolean noSuchName = true;
-                        synchronized (connections) {
-                            Iterator<Connection> iterator = connections.iterator();
-                            while (iterator.hasNext()) {
-                                if (newName.equals(iterator.next().userName)) {
-                                    out.println("This name has already been taken, try another one.");
-                                    noSuchName = false;
-                                    break;
+                    try {
+                        clientString = in.readLine();
+                        if (clientString.equals("/exit")) {
+                            break;
+                        } else if (clientString.startsWith("/snd")) {
+                            if (clientString.trim().length() < "/snd ".length()) {
+                                throw new MessageHandlingException("Tried to send empty message.");
+                            } else {
+                                clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
+                                synchronized (connections) {
+                                    Iterator<Connection> iterator = connections.iterator();
+                                    while (iterator.hasNext()) {
+                                        iterator.next().out.println(clientString);
+                                    }
                                 }
                             }
-                            if (noSuchName) {
-                                userName = newName;
-                                out.println("Your name was successfully changed to " + userName);
+                        } else if (clientString.equals("/hist")) {
+                            ArrayList<String> result = historyDealer.readHistory();
+                            for (String s : result) {
+                                out.println(s);
+                            }
+                        } else if (clientString.startsWith("/chid")) {
+                            String newName = clientString.substring(6);
+                            boolean noSuchName = true;
+
+                            synchronized (connections) {
+                                Iterator<Connection> iterator = connections.iterator();
+                                while (iterator.hasNext()) {
+                                    if (newName.equals(iterator.next().userName)) {
+                                        out.println("This name has already been taken, try another one.");
+                                        noSuchName = false;
+                                        break;
+                                    }
+                                }
+                                if (noSuchName) {
+                                    userName = newName;
+                                    out.println("Your name was successfully changed to " + userName);
+                                }
                             }
                         }
+                    } catch (SavingHistoryException e) {
+                        e.printStackTrace();
+                        out.println(e.getMessage());
+                    } catch (MessageHandlingException e) {
+                        e.printStackTrace();
+                        out.println(e.getMessage());
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SavingHistoryException e) {
                 e.printStackTrace();
             } finally {
                 close();
