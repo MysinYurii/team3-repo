@@ -5,6 +5,8 @@ import com.team3chat.exceptions.SavingHistoryException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -46,8 +48,8 @@ public class HistoryDealer {
         }
     }
 
-    public ArrayList<String> readHistory() throws SavingHistoryException {
-        ArrayList<String> history = new ArrayList<>();
+    public List<String> readHistory() throws SavingHistoryException {
+        List<String> history = new LinkedList<>();
         r.lock();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(
