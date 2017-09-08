@@ -24,9 +24,7 @@ public class Server {
         while (true) {
             Socket clientSocket = serverSocket.accept();
             Connection connection = new Connection(clientSocket);
-            synchronized (connections) {
-                connections.add(connection);
-            }
+            connections.add(connection);
             connection.start();
         }
     }
@@ -135,12 +133,9 @@ public class Server {
         private void sndCommandHandling(String clientString) throws MessageHandlingException, SavingHistoryException {
             if (clientString.substring(SND.length()).trim().length() == 0) {
                 throw new MessageHandlingException("Tried to send empty message.");
-            } else {
-                clientString = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
-                for (Connection connection : connections) {
-                    connection.out.println(clientString);
-                }
             }
+            String response = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
+            connections.forEach(connection -> connection.out.println(response));
         }
 
         void close() {
