@@ -1,8 +1,6 @@
 package com.team3chat.server;
 
 import com.team3chat.exceptions.SavingHistoryException;
-import com.team3chat.messages.SendMessageCommand;
-import com.team3chat.messages.ShowHistoryCommand;
 
 class BusinessLogic {
     private HistoryDealer historyDealer;
@@ -13,14 +11,7 @@ class BusinessLogic {
     }
 
     public void receiveCommand(Object command) throws SavingHistoryException {
-        if (command != null) {
-            if (command instanceof SendMessageCommand) {
-                SendMessageCommand sendMessageCommand = (SendMessageCommand) command;
-                formattedMessage = historyDealer.saveHistory(sendMessageCommand.getMessage());
-            } else if (command instanceof ShowHistoryCommand) {
-                historyDealer.readHistory();
-            }
-        }
+        historyDealer.readHistory();
     }
 
     public String getFormattedMessage() {

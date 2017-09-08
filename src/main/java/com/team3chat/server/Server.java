@@ -1,50 +1,86 @@
 package com.team3chat.server;
 
-import com.team3chat.messages.Command;
-
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class Server {
+    private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+    private ServerSocket server;
 
-    private Set<Handler> handlersSet;
-    int port;
-    Server(int port) throws IOException {
-        handlersSet = new HashSet<>();
-        this.port = port;
-    }
+    public Server() {
+        try {
+            server = new ServerSocket(6666);
 
-    public static void main(String[] args) throws IOException {
-        new Server(1234).start();
-    }
+            while (true) {
+                Socket clientSocket = server.accept();
+                Connection connection = new Connection(clientSocket);
+                connections.add(connection);
+                connection.start();
 
-    private void start() throws IOException {
-        HistoryDealer historyDealer = new HistoryDealer(new File("history.txt"));
-        BusinessLogic logicApplier = new BusinessLogic(historyDealer);
-        ServerSocket serverSocket = new ServerSocket(port);
-
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            Handler handler = new Handler(this, clientSocket, logicApplier);
-            handlersSet.add(handler);
-            new Thread(handler).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void closeHandler(Handler handler) {
-        synchronized (handlersSet) {
-            handlersSet.remove(handler);
-        }
-    }
+    private class Connection extends Thread {
+        private BufferedReader in;
+        private PrintWriter out;
+        private Socket clientSocket;
 
-    public void sendAll(Command c) {
-        synchronized (handlersSet) {
-            for (Handler handler : handlersSet) {
-                handler.send(c);
+        private String userName = "";
+
+        public Connection(Socket clientSocket) {
+            this.clientSocket = clientSocket;
+
+            try {
+                in = new BufferedReader(new InputStreamReader(
+                        clientSocket.getInputStream()));
+                out = new PrintWriter(clientSocket.getOutputStream(), true);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                close();
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                userName = in.readLine();
+                String clientString;
+
+                while (true) {
+                    clientString = in.readLine();
+                    if (clientString.equals("/exit")) {
+                        break;
+                    }
+                    synchronized (connections) {
+                        Iterator<Connection> iterator = connections.iterator();
+                        while (iterator.hasNext()) {
+                            iterator.next().out.println(userName + ": " + clientString);
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                close();
+            }
+        }
+
+        public void close() {
+            try {
+                in.close();
+                out.close();
+                clientSocket.close();
+            } catch (Exception e) {
+                System.out.println("threads were not closed");
             }
         }
     }
