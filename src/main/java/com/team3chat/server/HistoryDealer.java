@@ -16,16 +16,16 @@ public class HistoryDealer {
         this.historyFile = historyFile;
     }
 
-    public String saveHistoryService(BufferedWriter bufferedWriter, String message) throws SavingHistoryException, IOException {
-        String formattedMessage = String.format("%s | %s", (new Date()).toString(), message);
-        bufferedWriter.write(formattedMessage);
-        bufferedWriter.newLine();
-        return formattedMessage;
+    public String formatMessage(String message) {
+        return String.format("%s | %s", (new Date()).toString(), message);
     }
 
     public synchronized String saveHistory(String message) throws SavingHistoryException {
         try (BufferedWriter bufferedWriterToFile = new BufferedWriter(new FileWriter(historyFile, true))) {
-            return saveHistoryService(bufferedWriterToFile, message);
+            String formattedMessage = formatMessage(message);
+            bufferedWriterToFile.write(formattedMessage);
+            bufferedWriterToFile.newLine();
+            return formattedMessage;
         } catch (FileNotFoundException e) {
             throw new SavingHistoryException("File not found while writing history", e);
         } catch (IOException e) {

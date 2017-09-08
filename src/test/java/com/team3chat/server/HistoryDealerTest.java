@@ -22,27 +22,10 @@ public class HistoryDealerTest {
     @Test
     public void shouldAddDateWhenSavingHistory() throws Exception {
         String message = "complex message";
-        String result = historyDealer.saveHistoryService(new BufferedWriter(new NullWriter()),message);
+        String result = historyDealer.formatMessage(message);
         Pattern pattern = Pattern.compile(".*" + message);
         Matcher matcher = pattern.matcher(result);
         assertTrue(matcher.matches());
-    }
-
-    private class NullWriter extends Writer {
-        @Override
-        public void write(char[] cbuf, int off, int len) throws IOException {
-
-        }
-
-        @Override
-        public void flush() throws IOException {
-
-        }
-
-        @Override
-        public void close() throws IOException {
-
-        }
     }
 }
 
