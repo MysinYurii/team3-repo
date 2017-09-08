@@ -77,7 +77,22 @@ public class Server {
                             out.println(s);
                         }
                     } else if (clientString.startsWith("/chid")) {
-                        userName = clientString.substring(6);
+                        String newName = clientString.substring(6);
+                        boolean noSuchName = true;
+                        synchronized (connections) {
+                            Iterator<Connection> iterator = connections.iterator();
+                            while (iterator.hasNext()) {
+                                if (newName.equals(iterator.next().userName)) {
+                                    out.println("This name has already been taken, try another one.");
+                                    noSuchName = false;
+                                    break;
+                                }
+                            }
+                            if (noSuchName) {
+                                userName = newName;
+                                out.println("Your name was successfully changed to " + userName);
+                            }
+                        }
                     }
                 }
             } catch (IOException e) {

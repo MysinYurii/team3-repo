@@ -16,7 +16,7 @@ public class Client {
 
     public Client() {
         try {
-            Socket clientSocket = new Socket("127.0.0.1", 6666);
+            clientSocket = new Socket("127.0.0.1", 6666);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
@@ -36,9 +36,7 @@ public class Client {
                         clientString.startsWith("/chid") ||
                         clientString.equals("/hist") ||
                         clientString.equals("/exit")) {
-                    if (clientString.startsWith("/chid")) {
-                        System.out.println("Your name is changed to: " + clientString.substring(6));
-                    }
+
                     out.println(clientString);
                 } else {
                     System.out.println("incorrect input format. Message should start with " +
