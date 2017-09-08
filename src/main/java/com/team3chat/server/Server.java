@@ -16,7 +16,7 @@ public class Server {
     private HistoryDealer historyDealer;
 
     public Server() throws IOException {
-        server = new ServerSocket(6666);
+        server = new ServerSocket(6667);
         historyDealer = new HistoryDealer(new File("history.txt"));
     }
 

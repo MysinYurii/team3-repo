@@ -25,13 +25,13 @@ public class ServerPerfomanceTest {
     public void responseShouldBeFasterWhen_s_SecondsWhenSendingSomething() throws Exception {
         new Thread(() -> {
             try {
-                new Server();
+                new Server().start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
         List<Future<Double>> list = new LinkedList<>();
-        int clientsNumber = 100;
+        int clientsNumber = 50;
         ExecutorService executorService = Executors.newFixedThreadPool(clientsNumber);
         for (int i = 0; i < clientsNumber; ++i) {
             list.add(executorService.submit(() -> fireServer("absdhfbjg")));
@@ -44,14 +44,15 @@ public class ServerPerfomanceTest {
                 return 50_000.0;
             }
         }).reduce(0.0, (aDouble, aDouble2) -> aDouble2 + aDouble);
-        assertTrue(sSeconds > reducedSum / clientsNumber);
+        System.out.println(reducedSum / clientsNumber);
+        assertTrue(reducedSum / clientsNumber < sSeconds);
     }
 
     private double fireServer(String message) {
         double sum = 0.0;
         int count = 30;
         try (
-                Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
+                Socket socket = new Socket(InetAddress.getLocalHost(), 6667);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter output = new PrintWriter(socket.getOutputStream());
                 ) {

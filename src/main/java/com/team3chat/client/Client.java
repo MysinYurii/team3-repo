@@ -18,7 +18,7 @@ public class Client {
 
     public Client() {
         try {
-            clientSocket = new Socket("127.0.0.1", 6666);
+            clientSocket = new Socket("127.0.0.1", 6667);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
