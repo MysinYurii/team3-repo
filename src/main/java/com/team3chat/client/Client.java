@@ -4,59 +4,71 @@ package com.team3chat.client;
  * Created by Java_12 on 08.09.2017.
  */
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Scanner;
 
-public class Client {
-    private BufferedReader in;
-    private PrintWriter out;
+public class Client implements Closeable {
     private Socket clientSocket;
 
-    public Client() {
-        try {
-            Socket clientSocket = new Socket("127.0.0.1", 6666);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+    public Client() throws IOException {
+        clientSocket = new Socket("127.0.0.1", 6666);
+    }
 
-            ClientListener listener = new ClientListener(in, false);
-            new Thread(listener).start();
+    public void run() {
+        try (
+            BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter output = new PrintWriter(clientSocket.getOutputStream(), true);
+        ) {
+            ClientListener listener = new ClientListener(input);
+            Thread userInputListenerThread = new Thread(listener);
+            userInputListenerThread.start();
 
             System.out.println("Enter name: ");
-            String clientString = ClientStart.scan();
+            String clientString = scan();
             System.out.println("Your name is: " + clientString);
 
-            out.println(clientString);
-            while (!clientString.equals("/exit")) {
-                clientString = ClientStart.scan();
-                if (clientString.length() > 150) {
-                    System.out.println("incorrect input format. Message should be shorter than 150 symbols.");
-                } else if (clientString.startsWith("/snd") ||
-                        clientString.startsWith("/chid") ||
-                        clientString.equals("/hist") ||
-                        clientString.equals("/exit")) {
-                    if (clientString.startsWith("/chid")) {
-                        System.out.println("Your name is changed to: " + clientString.substring(6));
-                    }
-                    out.println(clientString);
-                } else {
-                    System.out.println("incorrect input format. Message should start with " +
-                            "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
-                }
+            output.println(clientString);
+            while (!"/exit".equals(clientString)) {
+                clientString = scan();
+                handleUserInput(output, clientString);
             }
-            listener.setInterrupted();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            close();
+            userInputListenerThread.interrupt();
+        } catch (UnknownHostException e) {
+            System.out.println("Server was not found");
+        } catch (IOException e) {
+            System.out.println("Failed to open connections with " + e.getMessage());
         }
     }
 
-    private void close() {
+    private void handleUserInput(PrintWriter output, String clientString) {
+        if (clientString.length() > 150) {
+            System.out.println("incorrect input format. Message should be shorter than 150 symbols.");
+        } else if (clientString.startsWith("/snd") ||
+                clientString.startsWith("/chid") ||
+                clientString.equals("/hist") ||
+                clientString.equals("/exit")) {
+            if (clientString.startsWith("/chid")) {
+                System.out.println("Your name is changed to: " + clientString.substring(6));
+            }
+            output.println(clientString);
+        } else {
+            System.out.println("incorrect input format. Message should start with " +
+                    "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
+        }
+    }
+
+
+    private static String scan() {
+        Scanner scanner = new Scanner(System.in);
+        String scannedString = scanner.nextLine();
+        return scannedString;
+    }
+
+    @Override
+    public void close() {
         try {
-            in.close();
-            out.close();
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();

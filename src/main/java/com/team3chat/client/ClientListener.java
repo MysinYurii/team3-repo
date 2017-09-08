@@ -5,20 +5,14 @@ import java.io.IOException;
 
 public class ClientListener implements Runnable {
     private BufferedReader bufferedReader;
-    private boolean interrupted;
 
-    public ClientListener(BufferedReader bufferedReader, boolean interrupted) {
+    public ClientListener(BufferedReader bufferedReader) {
         this.bufferedReader = bufferedReader;
-        this.interrupted = interrupted;
-    }
-
-    public void setInterrupted() {
-        interrupted = true;
     }
 
     @Override
     public void run() {
-        while (!interrupted) {
+        while (!Thread.interrupted()) {
             try {
                 String serverString = bufferedReader.readLine();
                 while (serverString != null) {
