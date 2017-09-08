@@ -5,12 +5,17 @@ import com.team3chat.exceptions.SavingHistoryException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by Java_12 on 07.09.2017.
  */
 public class HistoryDealer {
     private File historyFile;
+    private ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private Lock w = rwl.writeLock();
+    private Lock r = rwl.readLock();
 
     public HistoryDealer(File historyFile) {
         this.historyFile = historyFile;
@@ -20,21 +25,30 @@ public class HistoryDealer {
         return String.format("%s | %s", (new Date()).toString(), message);
     }
 
-    public synchronized String saveHistory(String message) throws SavingHistoryException {
+    public String saveHistory(String message) throws SavingHistoryException {
+        w.lock();
         try (BufferedWriter bufferedWriterToFile = new BufferedWriter(new FileWriter(historyFile, true))) {
             String formattedMessage = formatMessage(message);
             bufferedWriterToFile.write(formattedMessage);
             bufferedWriterToFile.newLine();
             return formattedMessage;
         } catch (FileNotFoundException e) {
-            throw new SavingHistoryException("File not found while writing history", e);
+            try {
+                historyFile.createNewFile();
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            throw new SavingHistoryException("File not found while writing history.", e);
         } catch (IOException e) {
             throw new SavingHistoryException("IOException while writing history", e);
+        } finally {
+            w.unlock();
         }
     }
 
-    public synchronized ArrayList<String> readHistory() throws SavingHistoryException {
+    public ArrayList<String> readHistory() throws SavingHistoryException {
         ArrayList<String> history = new ArrayList<>();
+        r.lock();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(
                         new BufferedInputStream(
@@ -47,6 +61,8 @@ public class HistoryDealer {
             throw new SavingHistoryException("File not found while reading history", e);
         } catch (IOException e) {
             throw new SavingHistoryException("IOException while reading history", e);
+        } finally {
+            r.unlock();
         }
         return history;
     }

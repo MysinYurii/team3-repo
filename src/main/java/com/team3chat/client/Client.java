@@ -4,6 +4,8 @@ package com.team3chat.client;
  * Created by Java_12 on 08.09.2017.
  */
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,35 +22,31 @@ public class Client {
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-            ClientListener listener = new ClientListener(in, false);
+            ClientListener listener = new ClientListener(in);
             new Thread(listener).start();
+            String clientString = readNickname();
 
-            System.out.println("Enter name: ");
-            String clientString = ClientStart.scan();
-            System.out.println("Your name is: " + clientString);
-
-            out.println(clientString);
-            while (!clientString.equals("/exit")) {
+            while (!clientString.equals("/exit") && !listener.isInterrupted()) {
                 clientString = ClientStart.scan();
-                if (clientString.length() > 150) {
-                    System.out.println("incorrect input format. Message should be shorter than 150 symbols.");
-                } else if (clientString.startsWith("/snd") ||
-                        clientString.startsWith("/chid") ||
-                        clientString.equals("/hist") ||
-                        clientString.equals("/exit")) {
-
-                    out.println(clientString);
-                } else {
-                    System.out.println("incorrect input format. Message should start with " +
-                            "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
-                }
+                out.println(clientString);
             }
-            listener.setInterrupted();
+            listener.interrupt();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close();
         }
+    }
+
+    private String readNickname() {
+        String clientString = "";
+        while (clientString.isEmpty()) {
+            System.out.println("Enter name: ");
+            clientString = ClientStart.scan();
+        }
+        System.out.println("Your name is: " + clientString);
+        out.println(clientString);
+        return clientString;
     }
 
     private void close() {
@@ -58,7 +56,7 @@ public class Client {
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println(">>>>>> unable to close thread");
+            System.err.println("Unable to close thread");
         }
     }
 }

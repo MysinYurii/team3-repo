@@ -2,31 +2,35 @@ package com.team3chat.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+
 public class ClientListener implements Runnable {
     private BufferedReader bufferedReader;
-    private boolean interrupted;
 
-    public ClientListener(BufferedReader bufferedReader, boolean interrupted) {
+    public ClientListener(BufferedReader bufferedReader) {
         this.bufferedReader = bufferedReader;
-        this.interrupted = interrupted;
-    }
-
-    public void setInterrupted() {
-        interrupted = true;
     }
 
     @Override
     public void run() {
-        while (!interrupted) {
-            try {
+        try {
+            while (!Thread.interrupted()) {
                 String serverString = bufferedReader.readLine();
                 while (serverString != null) {
                     System.out.println(serverString);
                     serverString = bufferedReader.readLine();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            System.out.println("Server disconnected.");
+            Thread.currentThread().interrupt();
         }
+    }
+
+    public void interrupt() {
+        Thread.currentThread().interrupt();
+    }
+
+    public boolean isInterrupted() {
+        return Thread.currentThread().isInterrupted();
     }
 }
