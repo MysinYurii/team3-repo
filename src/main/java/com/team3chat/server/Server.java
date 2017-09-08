@@ -6,12 +6,13 @@ import com.team3chat.exceptions.SavingHistoryException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Server {
-    private List<Connection> connections = Collections.synchronizedList(new LinkedList<Connection>());
+    private Collection<Connection> connections = Collections.synchronizedList(new LinkedList<Connection>());
     private ServerSocket serverSocket;
     private HistoryDealer historyDealer;
 
