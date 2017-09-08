@@ -65,40 +65,11 @@ public class Server {
                         if (clientString.equals("/exit")) {
                             break;
                         } else if (clientString.startsWith("/snd")) {
-                            if (clientString.trim().length() < "/snd ".length()) {
-                                throw new MessageHandlingException("Tried to send empty message.");
-                            } else {
-                                clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
-                                synchronized (connections) {
-                                    Iterator<Connection> iterator = connections.iterator();
-                                    while (iterator.hasNext()) {
-                                        iterator.next().out.println(clientString);
-                                    }
-                                }
-                            }
+                            sndCommandHandling(clientString);
                         } else if (clientString.equals("/hist")) {
-                            ArrayList<String> result = historyDealer.readHistory();
-                            for (String s : result) {
-                                out.println(s);
-                            }
+                            histCommandHandling();
                         } else if (clientString.startsWith("/chid")) {
-                            String newName = clientString.substring(6);
-                            boolean noSuchName = true;
-
-                            synchronized (connections) {
-                                Iterator<Connection> iterator = connections.iterator();
-                                while (iterator.hasNext()) {
-                                    if (newName.equals(iterator.next().userName)) {
-                                        out.println("This name has already been taken, try another one.");
-                                        noSuchName = false;
-                                        break;
-                                    }
-                                }
-                                if (noSuchName) {
-                                    userName = newName;
-                                    out.println("Your name was successfully changed to " + userName);
-                                }
-                            }
+                            chidCommandHandling(clientString);
                         }
                     } catch (SavingHistoryException e) {
                         e.printStackTrace();
@@ -112,6 +83,50 @@ public class Server {
                 e.printStackTrace();
             } finally {
                 close();
+            }
+        }
+
+        private void chidCommandHandling(String clientString) throws MessageHandlingException {
+            String newName = clientString.substring("/chid ".length());
+            boolean noSuchName = true;
+            if (newName.trim().length() == 0) {
+                throw new MessageHandlingException("Tried to change name to empty string.");
+            } else {
+                synchronized (connections) {
+                    Iterator<Connection> iterator = connections.iterator();
+                    while (iterator.hasNext()) {
+                        if (newName.equals(iterator.next().userName)) {
+                            out.println("This name has already been taken, try another one.");
+                            noSuchName = false;
+                            break;
+                        }
+                    }
+                    if (noSuchName) {
+                        userName = newName;
+                        out.println("Your name was successfully changed to " + userName);
+                    }
+                }
+            }
+        }
+
+        private void histCommandHandling() throws SavingHistoryException {
+            ArrayList<String> result = historyDealer.readHistory();
+            for (String s : result) {
+                out.println(s);
+            }
+        }
+
+        private void sndCommandHandling(String clientString) throws MessageHandlingException, SavingHistoryException {
+            if (clientString.trim().length() < "/snd ".length()) {
+                throw new MessageHandlingException("Tried to send empty message.");
+            } else {
+                clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
+                synchronized (connections) {
+                    Iterator<Connection> iterator = connections.iterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().out.println(clientString);
+                    }
+                }
             }
         }
 

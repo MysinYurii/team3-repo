@@ -17,7 +17,7 @@ public class HistoryDealer {
     }
 
     public synchronized String saveHistoryService(BufferedWriter bufferedWriter, String message) throws SavingHistoryException, IOException {
-        String formattedMessage = String.format("%s %s", (new Date()).toString(), message);
+        String formattedMessage = String.format("%s | %s", (new Date()).toString(), message);
         bufferedWriter.write(formattedMessage);
         bufferedWriter.newLine();
         return formattedMessage;
