@@ -3,12 +3,12 @@ package com.team3chat.client.parser;
 import com.team3chat.messages.Command;
 import com.team3chat.messages.SendMessageCommand;
 import com.team3chat.messages.ShowHistoryCommand;
-import org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CommandParserTest {
     CommandParser commandParser ;

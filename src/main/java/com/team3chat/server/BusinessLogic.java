@@ -1,7 +1,6 @@
 package com.team3chat.server;
 
 import com.team3chat.exceptions.SavingHistoryException;
-import com.team3chat.messages.Command;
 import com.team3chat.messages.SendMessageCommand;
 import com.team3chat.messages.ShowHistoryCommand;
 
