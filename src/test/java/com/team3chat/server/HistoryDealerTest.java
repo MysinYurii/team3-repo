@@ -16,7 +16,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class HistoryDealerTest {
@@ -51,6 +54,16 @@ public class HistoryDealerTest {
     public void shouldThrowExceptionWhenFileIsNotFound() throws SavingHistoryException {
         file.delete();
         historyDealer.readHistory();
+    }
+
+    @Test
+    public void shouldSaveAndGetFromHistory() throws SavingHistoryException {
+        historyDealer.saveHistory("some message");
+        historyDealer.saveHistory("some other message");
+        List<String> lines = historyDealer.readHistory();
+        assertThat(lines.size() , is(2));
+        assertThat(lines.get(0), containsString("some message"));
+        assertThat(lines.get(1), containsString("some other message"));
     }
 
 
