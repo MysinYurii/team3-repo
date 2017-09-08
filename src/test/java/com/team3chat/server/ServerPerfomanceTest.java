@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ServerTest {
+public class ServerPerfomanceTest {
     private final double sSeconds = 0.2;
 
 
@@ -25,7 +25,7 @@ public class ServerTest {
     public void responseShouldBeFasterWhen_s_SecondsWhenSendingSomething() throws Exception {
         new Thread(Server::new).start();
         List<Future<Double>> list = new LinkedList<>();
-        int clientsNumber = 50;
+        int clientsNumber = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(clientsNumber);
         for (int i = 0; i < clientsNumber; ++i) {
             list.add(executorService.submit(() -> fireServer("absdhfbjg")));
@@ -43,7 +43,7 @@ public class ServerTest {
 
     private double fireServer(String message) {
         double sum = 0.0;
-        int count = 20;
+        int count = 30;
         try (
                 Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
