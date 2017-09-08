@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Objects;
 
 public class Client {
     private BufferedReader in;
@@ -16,7 +17,8 @@ public class Client {
     private Socket clientSocket;
 
     public Client() throws IOException {
-        clientSocket = new Socket("127.0.0.1", 6667);
+        String ip = "127.0.0.1";
+        clientSocket = new Socket(ip, 6667);
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new PrintWriter(clientSocket.getOutputStream(), true);
     }
@@ -27,7 +29,7 @@ public class Client {
             new Thread(listener).start();
             String clientString = readNickname();
 
-            while (!clientString.equals("/exit") && !listener.isInterrupted()) {
+            while (!Objects.equals(clientString, "/exit") && !listener.isInterrupted()) {
                 clientString = ClientStart.scan();
                 out.println(clientString);
             }
