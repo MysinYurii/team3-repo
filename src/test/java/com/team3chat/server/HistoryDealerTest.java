@@ -1,6 +1,5 @@
 package com.team3chat.server;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,7 +30,7 @@ public class HistoryDealerTest {
 
     private class NullWriter extends Writer {
         @Override
-        public void write(@NotNull char[] cbuf, int off, int len) throws IOException {
+        public void write(char[] cbuf, int off, int len) throws IOException {
 
         }
 

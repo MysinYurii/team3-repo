@@ -16,7 +16,7 @@ public class HistoryDealer {
         this.historyFile = historyFile;
     }
 
-    public synchronized String saveHistoryService(BufferedWriter bufferedWriter, String message) throws SavingHistoryException, IOException {
+    public String saveHistoryService(BufferedWriter bufferedWriter, String message) throws SavingHistoryException, IOException {
         String formattedMessage = String.format("%s | %s", (new Date()).toString(), message);
         bufferedWriter.write(formattedMessage);
         bufferedWriter.newLine();
