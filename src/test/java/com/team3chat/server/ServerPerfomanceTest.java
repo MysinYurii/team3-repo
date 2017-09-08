@@ -23,7 +23,13 @@ public class ServerPerfomanceTest {
 
     @Test(timeout = 100_000)
     public void responseShouldBeFasterWhen_s_SecondsWhenSendingSomething() throws Exception {
-        new Thread(Server::new).start();
+        new Thread(() -> {
+            try {
+                new Server();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
         List<Future<Double>> list = new LinkedList<>();
         int clientsNumber = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(clientsNumber);

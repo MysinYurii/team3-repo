@@ -22,7 +22,13 @@ public class ServerIntegrationTest {
 
     @Before
     public void setUp() {
-        new Thread(Server::new).start();
+        new Thread(() -> {
+            try {
+                new Server();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     @Test(timeout = 100_000)
