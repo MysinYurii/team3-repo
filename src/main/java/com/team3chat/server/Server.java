@@ -71,10 +71,7 @@ public class Server {
                         } else if (clientString.startsWith("/chid")) {
                             chidCommandHandling(clientString);
                         }
-                    } catch (SavingHistoryException e) {
-                        e.printStackTrace();
-                        out.println(e.getMessage());
-                    } catch (MessageHandlingException e) {
+                    } catch (SavingHistoryException | MessageHandlingException e) {
                         e.printStackTrace();
                         out.println(e.getMessage());
                     }
@@ -93,9 +90,8 @@ public class Server {
                 throw new MessageHandlingException("Tried to change name to empty string.");
             } else {
                 synchronized (connections) {
-                    Iterator<Connection> iterator = connections.iterator();
-                    while (iterator.hasNext()) {
-                        if (newName.equals(iterator.next().userName)) {
+                    for (Connection connection : connections) {
+                        if (newName.equals(connection.userName)) {
                             out.println("This name has already been taken, try another one.");
                             noSuchName = false;
                             break;
@@ -122,9 +118,8 @@ public class Server {
             } else {
                 clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
                 synchronized (connections) {
-                    Iterator<Connection> iterator = connections.iterator();
-                    while (iterator.hasNext()) {
-                        iterator.next().out.println(clientString);
+                    for (Connection connection : connections) {
+                        connection.out.println(clientString);
                     }
                 }
             }

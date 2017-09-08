@@ -2,7 +2,6 @@ package com.team3chat.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-
 public class ClientListener implements Runnable {
     private BufferedReader bufferedReader;
     private boolean interrupted;

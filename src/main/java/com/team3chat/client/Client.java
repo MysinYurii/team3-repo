@@ -23,35 +23,31 @@ public class Client {
             ClientListener listener = new ClientListener(in, false);
             new Thread(listener).start();
 
-            String clientString = "";
-            while (clientString.trim().length() == 0) {
-                System.out.println("Enter name: ");
-                clientString = ClientStart.scan();
-            }
+            System.out.println("Enter name: ");
+            String clientString = ClientStart.scan();
             System.out.println("Your name is: " + clientString);
-            out.println(clientString);
 
+            out.println(clientString);
             while (!clientString.equals("/exit")) {
                 clientString = ClientStart.scan();
-                primaryMessageHandling(clientString);
+                if (clientString.length() > 150) {
+                    System.out.println("incorrect input format. Message should be shorter than 150 symbols.");
+                } else if (clientString.startsWith("/snd") ||
+                        clientString.startsWith("/chid") ||
+                        clientString.equals("/hist") ||
+                        clientString.equals("/exit")) {
+
+                    out.println(clientString);
+                } else {
+                    System.out.println("incorrect input format. Message should start with " +
+                            "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
+                }
             }
             listener.setInterrupted();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             close();
-        }
-    }
-
-    private void primaryMessageHandling(String clientString) {
-        if (clientString.length() > 150) {
-            System.out.println("Incorrect input format. Message should be shorter than 150 symbols.");
-        } else if (clientString.startsWith("/snd") || clientString.startsWith("/chid") ||
-                clientString.equals("/hist") || clientString.equals("/exit")) {
-            out.println(clientString);
-        } else {
-            System.out.println("Incorrect input format. Message should start with " +
-                    "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
         }
     }
 
