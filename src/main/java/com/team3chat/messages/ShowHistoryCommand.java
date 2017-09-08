@@ -5,4 +5,8 @@ package com.team3chat.messages;
  */
 public class ShowHistoryCommand implements Command {
 
+    @Override
+    public String getSerializedMessage() {
+        return "/hist";
+    }
 }

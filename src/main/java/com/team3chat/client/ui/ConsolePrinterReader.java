@@ -23,13 +23,9 @@ public class ConsolePrinterReader implements CommandPrinter, CommandReader {
 
 
     @Override
-    public void print(Command command) {
+    public void print(Command command) throws IOException {
         if (command instanceof SendMessageCommand) {
-            try {
-                dataOutputStream.write(((SendMessageCommand) command).getMessage());
-            } catch (IOException e) {
-                System.out.println("");
-            }
+            dataOutputStream.write(((SendMessageCommand) command).getMessage() + System.lineSeparator());
         }
     }
 
