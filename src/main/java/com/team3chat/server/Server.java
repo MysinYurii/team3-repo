@@ -8,10 +8,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Server {
-    private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
+    private List<Connection> connections = Collections.synchronizedList(new LinkedList<Connection>());
     private ServerSocket server;
     private HistoryDealer historyDealer;
 
@@ -24,7 +25,9 @@ public class Server {
         while (true) {
             Socket clientSocket = server.accept();
             Connection connection = new Connection(clientSocket);
-            connections.add(connection);
+            synchronized (connections) {
+                connections.add(connection);
+            }
             connection.start();
         }
     }
@@ -102,27 +105,26 @@ public class Server {
         private void chidCommandHandling(String clientString) throws MessageHandlingException {
             String newName = clientString.substring(CHID.length()).trim();
             boolean noSuchName = true;
-            if (newName.length() == 0) {
-                throw new MessageHandlingException("Tried to change name to empty string.");
-            } else {
-                synchronized (connections) {
-                    for (Connection connection : connections) {
-                        if (newName.equals(connection.userName)) {
-                            out.println("This name has already been taken, try another one.");
-                            noSuchName = false;
-                            break;
-                        }
-                    }
-                    if (noSuchName) {
-                        userName = newName;
-                        out.println("Your name was successfully changed to " + userName);
+            if (newName.length() != 0) {
+                for (Connection connection : connections) {
+                    if (newName.equals(connection.userName)) {
+                        out.println("This name has already been taken, try another one.");
+                        noSuchName = false;
+                        break;
                     }
                 }
+
+                if (noSuchName) {
+                    userName = newName;
+                    out.println("Your name was successfully changed to " + userName);
+                }
+            } else {
+                throw new MessageHandlingException("Tried to change name to empty string.");
             }
         }
 
         private void histCommandHandling() throws SavingHistoryException {
-            ArrayList<String> result = historyDealer.readHistory();
+            List<String> result = historyDealer.readHistory();
             for (String s : result) {
                 out.println(s);
             }
@@ -133,10 +135,8 @@ public class Server {
                 throw new MessageHandlingException("Tried to send empty message.");
             } else {
                 clientString = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
-                synchronized (connections) {
-                    for (Connection connection : connections) {
-                        connection.out.println(clientString);
-                    }
+                for (Connection connection : connections) {
+                    connection.out.println(clientString);
                 }
             }
         }

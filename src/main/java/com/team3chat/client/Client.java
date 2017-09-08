@@ -4,9 +4,8 @@ package com.team3chat.client;
  * Created by Java_12 on 08.09.2017.
  */
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -16,12 +15,14 @@ public class Client {
     private PrintWriter out;
     private Socket clientSocket;
 
-    public Client() {
-        try {
-            clientSocket = new Socket("127.0.0.1", 6667);
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+    public Client() throws IOException {
+        clientSocket = new Socket("127.0.0.1", 6667);
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+    }
 
+    public void start() {
+        try {
             ClientListener listener = new ClientListener(in);
             new Thread(listener).start();
             String clientString = readNickname();
@@ -37,6 +38,7 @@ public class Client {
             close();
         }
     }
+
 
     private String readNickname() {
         String clientString = "";
