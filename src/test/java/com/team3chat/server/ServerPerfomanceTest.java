@@ -52,7 +52,7 @@ public class ServerPerfomanceTest {
         double sum = 0.0;
         int count = 30;
         try (
-                Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
+                Socket socket = new Socket(InetAddress.getLocalHost(), 6667);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter output = new PrintWriter(socket.getOutputStream());
                 ) {

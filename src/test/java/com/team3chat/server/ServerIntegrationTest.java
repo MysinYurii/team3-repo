@@ -31,14 +31,14 @@ public class ServerIntegrationTest {
         }).start();
     }
 
-    @Test(timeout = 100_000)
+    @Test(timeout = 10_000)
     public void shouldSendMessageAndAcceptIt() throws Exception {
         sendMessageAndRecieveIt();
     }
 
     private void sendMessageAndRecieveIt() {
         try (
-                Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
+                Socket socket = new Socket(InetAddress.getLocalHost(), 6667);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
@@ -53,10 +53,10 @@ public class ServerIntegrationTest {
         }
     }
 
-    @Test
+    @Test(timeout = 10_000)
     public void shouldChangeName() {
         try (
-                Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
+                Socket socket = new Socket(InetAddress.getLocalHost(), 6667);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
@@ -72,10 +72,10 @@ public class ServerIntegrationTest {
         }
     }
 
-    @Test
+    @Test(timeout = 10_000)
     public void shouldDisconnectCorrectly() {
         try (
-                Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
+                Socket socket = new Socket(InetAddress.getLocalHost(), 6667);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
