@@ -7,10 +7,6 @@ import java.io.IOException;
  */
 public class ServerStart {
     public static void main(String[] args) {
-        try (Server server = new Server()) {
-            server.start();
-        } catch (IOException e) {
-            System.out.println("Server failed to start " + e.getMessage());
-        }
+        new Server();
     }
 }
