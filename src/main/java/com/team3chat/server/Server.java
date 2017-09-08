@@ -8,7 +8,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class Server {
@@ -16,24 +15,26 @@ public class Server {
     private ServerSocket server;
     private HistoryDealer historyDealer;
 
-    public Server() {
-        try {
-            server = new ServerSocket(6666);
-            historyDealer = new HistoryDealer(new File("history.txt"));
+    public Server() throws IOException {
+        server = new ServerSocket(6666);
+        historyDealer = new HistoryDealer(new File("history.txt"));
+    }
 
-            while (true) {
-                Socket clientSocket = server.accept();
-                Connection connection = new Connection(clientSocket);
-                connections.add(connection);
-                connection.start();
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public void start() throws IOException {
+        while (true) {
+            Socket clientSocket = server.accept();
+            Connection connection = new Connection(clientSocket);
+            connections.add(connection);
+            connection.start();
         }
     }
 
     private class Connection extends Thread {
+        public static final String CHID = "/chid";
+        public static final String EXIT = "/exit";
+        public static final String SND = "/snd";
+        public static final String HIST = "/hist";
+        public static final int MAX_MESSAGE_LENGTH = 150;
         private BufferedReader in;
         private PrintWriter out;
         private Socket clientSocket;
@@ -62,14 +63,24 @@ public class Server {
                 while (true) {
                     try {
                         clientString = in.readLine();
-                        if (clientString.equals("/exit")) {
-                            break;
-                        } else if (clientString.startsWith("/snd")) {
-                            sndCommandHandling(clientString);
-                        } else if (clientString.equals("/hist")) {
-                            histCommandHandling();
-                        } else if (clientString.startsWith("/chid")) {
+                        if (clientString == null) {
+                            continue;
+                        }
+                        if (clientString.startsWith(CHID)) {
                             chidCommandHandling(clientString);
+                        } else if (clientString.length() > MAX_MESSAGE_LENGTH) {
+                            System.out.println(
+                                    String.format("Incorrect input format. Message should be shorter than %d symbols.",
+                                            MAX_MESSAGE_LENGTH));
+                        } else if (clientString.startsWith(SND)) {
+                            sndCommandHandling(clientString);
+                        } else if (clientString.equals(HIST)) {
+                            histCommandHandling();
+                        } else if (clientString.equals(EXIT)) {
+                            break;
+                        } else {
+                            out.println("Incorrect input format. Message should start with " +
+                                    SND + " or " + CHID + " or be equal to " + HIST + " or " + EXIT);
                         }
                     } catch (SavingHistoryException | MessageHandlingException e) {
                         e.printStackTrace();
@@ -84,9 +95,9 @@ public class Server {
         }
 
         private void chidCommandHandling(String clientString) throws MessageHandlingException {
-            String newName = clientString.substring("/chid ".length());
+            String newName = clientString.substring(CHID.length()).trim();
             boolean noSuchName = true;
-            if (newName.trim().length() == 0) {
+            if (newName.length() == 0) {
                 throw new MessageHandlingException("Tried to change name to empty string.");
             } else {
                 synchronized (connections) {
@@ -113,10 +124,10 @@ public class Server {
         }
 
         private void sndCommandHandling(String clientString) throws MessageHandlingException, SavingHistoryException {
-            if (clientString.trim().length() < "/snd ".length()) {
+            if (clientString.substring(SND.length()).trim().length() == 0) {
                 throw new MessageHandlingException("Tried to send empty message.");
             } else {
-                clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
+                clientString = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
                 synchronized (connections) {
                     for (Connection connection : connections) {
                         connection.out.println(clientString);
@@ -125,14 +136,14 @@ public class Server {
             }
         }
 
-        public void close() {
+        void close() {
             try {
                 in.close();
                 out.close();
                 clientSocket.close();
                 connections.remove(this);
             } catch (Exception e) {
-                System.out.println("threads were not closed");
+                System.out.println("Threads were not closed");
             }
         }
     }
