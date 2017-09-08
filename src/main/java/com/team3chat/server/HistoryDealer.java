@@ -18,7 +18,7 @@ public class HistoryDealer {
 
     public synchronized String saveHistory(String message) throws SavingHistoryException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(historyFile, true))) {
-            String formattedMessage = String.format("%s %s", (new Date()).toString(), message);
+            String formattedMessage = String.format("%s | %s", (new Date()).toString(), message);
             bw.write(formattedMessage);
             bw.newLine();
             return formattedMessage;

@@ -1,5 +1,7 @@
 package com.team3chat.server;
 
+import com.team3chat.exceptions.SavingHistoryException;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,10 +13,12 @@ import java.util.List;
 public class Server {
     private List<Connection> connections = Collections.synchronizedList(new ArrayList<Connection>());
     private ServerSocket server;
+    private HistoryDealer historyDealer;
 
     public Server() {
         try {
             server = new ServerSocket(6666);
+            historyDealer = new HistoryDealer(new File("history.txt"));
 
             while (true) {
                 Socket clientSocket = server.accept();
@@ -59,15 +63,26 @@ public class Server {
                     clientString = in.readLine();
                     if (clientString.equals("/exit")) {
                         break;
-                    }
-                    synchronized (connections) {
-                        Iterator<Connection> iterator = connections.iterator();
-                        while (iterator.hasNext()) {
-                            iterator.next().out.println(userName + ": " + clientString);
+                    } else if (clientString.startsWith("/snd")) {
+                        clientString = historyDealer.saveHistory(userName + ": " + clientString.substring(5));
+                        synchronized (connections) {
+                            Iterator<Connection> iterator = connections.iterator();
+                            while (iterator.hasNext()) {
+                                iterator.next().out.println(clientString);
+                            }
                         }
+                    } else if (clientString.equals("/hist")) {
+                        ArrayList<String> result = historyDealer.readHistory();
+                        for (String s : result) {
+                            out.println(s);
+                        }
+                    } else if (clientString.startsWith("/chid")) {
+                        userName = clientString.substring(6);
                     }
                 }
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SavingHistoryException e) {
                 e.printStackTrace();
             } finally {
                 close();
@@ -79,6 +94,7 @@ public class Server {
                 in.close();
                 out.close();
                 clientSocket.close();
+                connections.remove(this);
             } catch (Exception e) {
                 System.out.println("threads were not closed");
             }

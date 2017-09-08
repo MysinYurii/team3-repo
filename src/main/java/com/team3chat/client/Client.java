@@ -4,7 +4,9 @@ package com.team3chat.client;
  * Created by Java_12 on 08.09.2017.
  */
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
@@ -28,8 +30,20 @@ public class Client {
             out.println(clientString);
             while (!clientString.equals("/exit")) {
                 clientString = ClientStart.scan();
-
-                out.println(clientString);
+                if (clientString.length() > 150) {
+                    System.out.println("incorrect input format. Message should be shorter than 150 symbols.");
+                } else if (clientString.startsWith("/snd") ||
+                        clientString.startsWith("/chid") ||
+                        clientString.equals("/hist") ||
+                        clientString.equals("/exit")) {
+                    if (clientString.startsWith("/chid")) {
+                        System.out.println("Your name is changed to: " + clientString.substring(6));
+                    }
+                    out.println(clientString);
+                } else {
+                    System.out.println("incorrect input format. Message should start with " +
+                            "\"/snd\" or \"/chid\" or be equal to \"/hist\" or \"/exit\"");
+                }
             }
             listener.setInterrupted();
         } catch (Exception e) {
