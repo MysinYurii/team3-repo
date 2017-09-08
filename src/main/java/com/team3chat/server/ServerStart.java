@@ -6,6 +6,9 @@ import java.io.IOException;
  * Created by Java_12 on 08.09.2017.
  */
 public class ServerStart {
+    private ServerStart() {
+    }
+
     public static void main(String[] args) {
         try {
             new Server().start();
