@@ -6,24 +6,23 @@ import com.team3chat.exceptions.SavingHistoryException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Server {
     private List<Connection> connections = Collections.synchronizedList(new LinkedList<Connection>());
-    private ServerSocket server;
+    private ServerSocket serverSocket;
     private HistoryDealer historyDealer;
 
     public Server() throws IOException {
-        server = new ServerSocket(6667);
+        serverSocket = new ServerSocket(6667);
         historyDealer = new HistoryDealer(new File("history.txt"));
     }
 
     public void start() throws IOException {
         while (true) {
-            Socket clientSocket = server.accept();
+            Socket clientSocket = serverSocket.accept();
             Connection connection = new Connection(clientSocket);
             synchronized (connections) {
                 connections.add(connection);
@@ -33,7 +32,7 @@ public class Server {
     }
 
     public void stop() throws IOException {
-        server.close();
+        serverSocket.close();
         System.out.println("Server was closed");
     }
 
@@ -67,13 +66,20 @@ public class Server {
         public void run() {
             try {
                 userName = in.readLine();
-                String clientString;
-                while (true) {
-                    try {
-                        clientString = in.readLine();
-                        if (clientString == null) {
-                            continue;
-                        }
+                clientMessageHandling();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                close();
+            }
+        }
+
+        private void clientMessageHandling() throws IOException {
+            String clientString;
+            while (true) {
+                try {
+                    clientString = in.readLine();
+                    if (clientString != null) {
                         if (clientString.startsWith(CHID)) {
                             chidCommandHandling(clientString);
                         } else if (clientString.length() > MAX_MESSAGE_LENGTH) {
@@ -90,15 +96,11 @@ public class Server {
                             out.println("Incorrect input format. Message should start with " +
                                     SND + " or " + CHID + " or be equal to " + HIST + " or " + EXIT);
                         }
-                    } catch (SavingHistoryException | MessageHandlingException e) {
-                        e.printStackTrace();
-                        out.println(e.getMessage());
                     }
+                } catch (SavingHistoryException | MessageHandlingException e) {
+                    e.printStackTrace();
+                    out.println(e.getMessage());
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                close();
             }
         }
 

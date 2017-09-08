@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class ClientStart {
+    private ClientStart() {
+    }
+
     public static void main(String[] args) {
         try {
             new Client().start();
