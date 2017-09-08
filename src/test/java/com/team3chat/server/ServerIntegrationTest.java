@@ -1,6 +1,8 @@
 package com.team3chat.server;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -20,11 +22,14 @@ import static org.junit.Assert.fail;
  */
 public class ServerIntegrationTest {
 
+    private Server server;
+
     @Before
     public void setUp() {
         new Thread(() -> {
             try {
-                new Server().start();
+                server = new Server();
+                server.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -84,6 +89,13 @@ public class ServerIntegrationTest {
             assertThat(socket.getInputStream().read(), is(-1));
         } catch (IOException e) {
             fail(e.getMessage());
+        }
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        if (server != null) {
+            server.stop();
         }
     }
 

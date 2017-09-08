@@ -1,5 +1,7 @@
-package com.team3chat.server;
+package com.team3chat.perfomance;
 
+import com.team3chat.server.Server;
+import org.junit.After;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -19,13 +21,15 @@ import static org.junit.Assert.fail;
 
 public class ServerPerfomanceTest {
     private final double sSeconds = 0.2;
+    private Server server;
 
 
     @Test(timeout = 100_000)
     public void responseShouldBeFasterWhen_s_SecondsWhenSendingSomething() throws Exception {
         new Thread(() -> {
             try {
-                new Server().start();
+                server = new Server();
+                server.start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -73,6 +77,11 @@ public class ServerPerfomanceTest {
         return sum / count;
     }
 
-
+    @After
+    public void tearDown() throws IOException {
+        if (server != null) {
+            server.stop();
+        }
+    }
 
 }
