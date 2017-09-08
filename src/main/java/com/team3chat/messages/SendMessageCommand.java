@@ -13,4 +13,9 @@ public class SendMessageCommand implements Command {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String getSerializedMessage() {
+        return "/snd " + message;
+    }
 }

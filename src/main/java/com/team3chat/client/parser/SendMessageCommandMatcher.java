@@ -1,5 +1,6 @@
 package com.team3chat.client.parser;
 
+import com.team3chat.messages.Command;
 import com.team3chat.messages.SendMessageCommand;
 import org.jetbrains.annotations.Nullable;
 

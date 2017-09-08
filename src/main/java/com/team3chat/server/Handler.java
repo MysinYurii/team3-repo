@@ -4,12 +4,11 @@ package com.team3chat.server;
  * Created by Java_12 on 07.09.2017.
  */
 
+import com.team3chat.messages.Command;
 import com.team3chat.exceptions.SavingHistoryException;
 import com.team3chat.messages.Command;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class Handler implements Runnable {
@@ -27,16 +26,15 @@ public class Handler implements Runnable {
     @Override
     public void run() {
         try (
-                ObjectInputStream input = new ObjectInputStream(clientSocket.getInputStream());
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+                DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+                DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
         ) {
             while (true) {
-                Object command = input.readObject();
+                String command = input.readUTF();
+                System.out.println(command);
                 logicApplier.receiveCommand(command);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SavingHistoryException e) {
             e.printStackTrace();
