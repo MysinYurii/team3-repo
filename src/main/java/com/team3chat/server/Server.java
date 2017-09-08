@@ -6,7 +6,6 @@ import com.team3chat.exceptions.SavingHistoryException;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,9 +24,7 @@ public class Server {
         while (true) {
             Socket clientSocket = server.accept();
             Connection connection = new Connection(clientSocket);
-            synchronized (connections) {
-                connections.add(connection);
-            }
+            connections.add(connection);
             connection.start();
         }
     }
@@ -133,12 +130,9 @@ public class Server {
         private void sndCommandHandling(String clientString) throws MessageHandlingException, SavingHistoryException {
             if (clientString.substring(SND.length()).trim().length() == 0) {
                 throw new MessageHandlingException("Tried to send empty message.");
-            } else {
-                clientString = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
-                for (Connection connection : connections) {
-                    connection.out.println(clientString);
-                }
             }
+            String response = historyDealer.saveHistory(userName + ":" + clientString.substring(SND.length()));
+            connections.forEach(connection -> connection.out.println(response));
         }
 
         void close() {
