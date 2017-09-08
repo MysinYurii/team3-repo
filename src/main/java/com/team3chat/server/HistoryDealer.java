@@ -3,7 +3,6 @@ package com.team3chat.server;
 import com.team3chat.exceptions.SavingHistoryException;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;

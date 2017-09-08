@@ -2,7 +2,6 @@ package com.team3chat.server;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.BufferedReader;
