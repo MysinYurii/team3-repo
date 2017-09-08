@@ -1,5 +1,7 @@
 package com.team3chat.client.sender;
 
+import com.team3chat.client.parser.CommandParser;
+import com.team3chat.client.parser.ParsingException;
 import com.team3chat.client.ui.CommandPrinter;
 import com.team3chat.client.ui.CommandReader;
 import com.team3chat.messages.Command;
@@ -11,32 +13,37 @@ import java.net.Socket;
 /**
  * Created by Java_9 on 07.09.2017.
  */
-public class CommandSocketSender implements CommandPrinter, CommandReader {
+public class CommandSocketSender implements CommandPrinter, CommandReader, Closeable {
     private Socket socket;
+    private DataInputStream dataInputStream;
+    private DataOutputStream dataOutputStream;
+    private CommandParser commandParser;
 
-    public CommandSocketSender(Socket socket) {
+    public CommandSocketSender(Socket socket, CommandParser commandParser) throws IOException {
         this.socket = socket;
+        this.dataInputStream = new DataInputStream(socket.getInputStream());
+        this.dataOutputStream = new DataOutputStream(socket.getOutputStream());
+        this.commandParser = commandParser;
     }
 
     @Override
-    public void print(Command command) {
-        try (ObjectOutputStream output = new ObjectOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
-            output.writeObject(command);
-            output.flush();
-        } catch (IOException e) {
-            System.out.println("Error during message sending");
-        }
-    }
-
-    @Override
-    public Command readCommand() {
+    public Command readCommand() throws IOException {
         while (true) {
-            try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()))) {
-                String newMessage = inputStream.readUTF();
-                return new SendMessageCommand(newMessage);
-            } catch (IOException e) {
-                e.printStackTrace();
+            try {
+                return commandParser.parse(dataInputStream.readUTF());
+            } catch (ParsingException ignored) {
             }
         }
+    }
+
+    @Override
+    public void print(Command command) throws IOException {
+        dataOutputStream.writeUTF(command.getSerializedMessage());
+        dataOutputStream.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        socket.close();
     }
 }

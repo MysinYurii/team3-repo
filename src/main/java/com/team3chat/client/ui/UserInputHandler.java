@@ -3,6 +3,8 @@ package com.team3chat.client.ui;
 import com.team3chat.messages.Command;
 import com.team3chat.messages.DisconnectCommand;
 
+import java.io.IOException;
+
 /**
  * Created by Java_9 on 07.09.2017.
  */
@@ -18,9 +20,11 @@ public class UserInputHandler {
     public void start() {
         Command insertedCommand = null;
         do {
-            Command command = commandReader.readCommand();
-            insertedCommand = command;
-            commandPrinter.print(insertedCommand);
+            try {
+                insertedCommand = commandReader.readCommand();
+                commandPrinter.print(insertedCommand);
+            } catch (IOException ignored) {
+            }
         } while (!(insertedCommand instanceof DisconnectCommand));
     }
 
