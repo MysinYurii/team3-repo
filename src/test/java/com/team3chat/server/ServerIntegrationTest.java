@@ -24,7 +24,7 @@ public class ServerIntegrationTest {
     public void setUp() {
         new Thread(() -> {
             try {
-                new Server();
+                new Server().start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -40,12 +40,12 @@ public class ServerIntegrationTest {
         try (
                 Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter output = new PrintWriter(socket.getOutputStream());
+                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
             output.println(Thread.currentThread().getName());
             output.println("/snd message");
-            output.flush();
             String acceptedString = input.readLine();
+            System.out.println(acceptedString);
             assertThat(acceptedString, containsString(Thread.currentThread().getName()));
             assertThat(acceptedString, containsString("message"));
         } catch (IOException e) {
@@ -58,15 +58,13 @@ public class ServerIntegrationTest {
         try (
                 Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter output = new PrintWriter(socket.getOutputStream());
+                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
             output.println(Thread.currentThread().getName());
             output.println("/chid my new id");
-            output.flush();
             String changedNotification = input.readLine();
             assertThat(changedNotification, containsString("my new id"));
             output.println("/snd message");
-            output.flush();
             String acceptedMessage = input.readLine();
             assertThat(acceptedMessage, containsString("message"));
         } catch (IOException e) {
@@ -79,11 +77,10 @@ public class ServerIntegrationTest {
         try (
                 Socket socket = new Socket(InetAddress.getLocalHost(), 6666);
                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter output = new PrintWriter(socket.getOutputStream());
+                PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
         ) {
             output.println(Thread.currentThread().getName());
             output.println("/exit");
-            output.flush();
             assertThat(socket.getInputStream().read(), is(-1));
         } catch (IOException e) {
             fail(e.getMessage());
