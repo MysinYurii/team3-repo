@@ -54,8 +54,11 @@
                         <param>com.team3chat.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>com.team3chat.*</param>
+                        <param>com.team3chat.server.*</param>
                     </targetTests>
+                    <excludedClasses>
+                        <excludedClass>com.team3chat.server.ServerIntegrationTest</excludedClass>
+                    </excludedClasses>
                     <mutators>
                         <mutator>ALL</mutator>
                     </mutators>
@@ -78,6 +81,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkCount>0</forkCount>
+                </configuration>
             </plugin>
         </plugins>
     </build>

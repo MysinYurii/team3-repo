@@ -32,6 +32,11 @@ public class Server {
         }
     }
 
+    public void stop() throws IOException {
+        server.close();
+        System.out.println("Server was closed");
+    }
+
     private class Connection extends Thread {
         public static final String CHID = "/chid";
         public static final String EXIT = "/exit";
